@@ -1,0 +1,8 @@
+(name [Ifdef Directive])
+
+(trigger
+    (tab ifdef))
+
+(only-in source.erlang)
+
+(snippet [-ifdef (%{1="macro"}).])

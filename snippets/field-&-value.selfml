@@ -1,0 +1,8 @@
+(name [Field & Value])
+
+(trigger
+    (key [[ctrl],]))
+
+(only-in [source.erlang meta.structure.record])
+
+(snippet [, %{1="field"}%{2=" = %{3="value"}"}])

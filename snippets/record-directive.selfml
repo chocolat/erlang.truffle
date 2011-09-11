@@ -1,0 +1,8 @@
+(name [Record Directive])
+
+(trigger
+    (tab rec))
+
+(only-in source.erlang)
+
+(snippet [-record (%{1="record"}, {%{2="field"}%{3=" = %{4="value"}"}}).])

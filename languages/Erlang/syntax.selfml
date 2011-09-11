@@ -1,0 +1,771 @@
+(root source.erlang
+    (include @module-directive)
+    (include @import-export-directive)
+    (include @record-directive)
+    (include @define-directive)
+    (include @macro-directive)
+    (include @directive)
+    (include @function)
+    (include @everything-else))
+
+(collection tuple
+    (zone meta.structure.tuple.erlang
+        (start
+            (regex [(\{)]
+                (1 punctuation.definition.tuple.begin.erlang)))
+        (end
+            (regex [(\})]
+                (1 punctuation.definition.tuple.end.erlang)))
+        (subzones
+            (zone punctuation.separator.tuple.erlang
+                (match ,))
+            (include @everything-else))))
+
+(collection everything-else
+    (include @comment)
+    (include @record-usage)
+    (include @macro-usage)
+    (include @expression)
+    (include @keyword)
+    (include @textual-operator)
+    (include @function-call)
+    (include @tuple)
+    (include @list)
+    (include @binary)
+    (include @parenthesized-expression)
+    (include @character)
+    (include @number)
+    (include @atom)
+    (include @string)
+    (include @symbolic-operator)
+    (include @variable))
+
+(collection macro-usage
+    (zone meta.macro-usage.erlang
+        (match
+            (regex [(\?\??)\s*+([a-zA-Z\d@_]++)]
+                (1 keyword.operator.macro.erlang)
+                (2 entity.name.function.macro.erlang)))))
+
+(collection keyword
+    (zone keyword.control.erlang
+        (match
+            (list after begin case catch cond end fun if let of query try receive when)
+            (boundary.both))))
+
+(collection symbolic-operator
+    (zone keyword.operator.symbolic.erlang
+        (match
+            (regex \+\+|\+|--|-|\*|/=|/|=/=|=:=|==|=<|=|<-|<|>=|>|!))))
+
+(collection internal-record-body
+    (zone meta.structure.record.erlang
+        (start
+            (regex [(\{)]
+                (1 punctuation.definition.class.record.begin.erlang)))
+        (end
+            (regex [(?=\})]))
+        (subzones
+            (zone
+                (start
+                    (regex [(([a-z][a-zA-Z\d@_]*+)|(_))\s*+(=)]
+                        (3 variable.language.omitted.field.erlang)
+                        (4 keyword.operator.assignment.erlang)
+                        (2 variable.other.field.erlang)))
+                (end
+                    (regex [(,)|(?=\})]
+                        (1 punctuation.separator.class.record.erlang)))
+                (subzones
+                    (include @everything-else)))
+            (zone
+                (match
+                    (regex [([a-z][a-zA-Z\d@_]*+)\s*+(,)?]
+                        (1 variable.other.field.erlang)
+                        (2 punctuation.separator.class.record.erlang))))
+            (include @everything-else))))
+
+(collection parenthesized-expression
+    (zone meta.expression.parenthesized
+        (start
+            (regex [(\()]
+                (1 punctuation.section.expression.begin.erlang)))
+        (end
+            (regex [(\))]
+                (1 punctuation.section.expression.end.erlang)))
+        (subzones
+            (include @everything-else))))
+
+(collection record-usage
+    (zone meta.record-usage.erlang
+        (match
+            (regex [(#)\s*+([a-z][a-zA-Z\d@_]*+)\s*+(\.)\s*+([a-z][a-zA-Z\d@_]*+)]
+                (3 punctuation.separator.record-field.erlang)
+                (4 variable.other.field.erlang)
+                (1 keyword.operator.record.erlang)
+                (2 entity.name.type.class.record.erlang))))
+    (zone meta.record-usage.erlang
+        (start
+            (regex [(#)\s*+([a-z][a-zA-Z\d@_]*+)]
+                (1 keyword.operator.record.erlang)
+                (2 entity.name.type.class.record.erlang)))
+        (end
+            (regex [((\}))]
+                (1 meta.structure.record.erlang)
+                (2 punctuation.definition.class.record.end.erlang)))
+        (subzones
+            (include @internal-record-body))))
+
+(collection function-call
+    (zone meta.function-call.erlang
+        (start
+            (regex [(?=[a-z][a-zA-Z\d@_]*+\s*+(\(|:\s*+[a-z][a-zA-Z\d@_]*+\s*+\())]))
+        (end
+            (regex [(\))]
+                (1 punctuation.definition.parameters.end.erlang)))
+        (subzones
+            (zone
+                (start
+                    (regex [((erlang)\s*+(:)\s*+)?(is_atom|is_binary|is_constant|is_float|is_function|is_integer|is_list|is_number|is_pid|is_port|is_reference|is_tuple|is_record|abs|element|hd|length|node|round|self|size|tl|trunc)\s*+(\()]
+                        (3 punctuation.separator.module-function.erlang)
+                        (4 entity.name.function.guard.erlang)
+                        (5 punctuation.definition.parameters.begin.erlang)
+                        (2 entity.name.type.class.module.erlang)))
+                (end
+                    (regex [(?=\))]))
+                (subzones
+                    (zone punctuation.separator.parameters.erlang
+                        (match ,))
+                    (include @everything-else)))
+            (zone
+                (start
+                    (regex [(([a-z][a-zA-Z\d@_]*+)\s*+(:)\s*+)?([a-z][a-zA-Z\d@_]*+)\s*+(\()]
+                        (3 punctuation.separator.module-function.erlang)
+                        (4 entity.name.function.erlang)
+                        (5 punctuation.definition.parameters.begin.erlang)
+                        (2 entity.name.type.class.module.erlang)))
+                (end
+                    (regex [(?=\))]))
+                (subzones
+                    (zone punctuation.separator.parameters.erlang
+                        (match ,))
+                    (include @everything-else))))))
+
+(collection record-directive
+    (zone meta.directive.record.erlang
+        (start
+            (regex [^\s*+(-)\s*+(record)\s*+(\()\s*+([a-z][a-zA-Z\d@_]*+)\s*+(,)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.type.class.record.definition.erlang)
+                (5 punctuation.separator.parameters.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.import.erlang)))
+        (end
+            (regex [((\}))\s*+(\))\s*+(\.)]
+                (3 punctuation.definition.parameters.end.erlang)
+                (4 punctuation.section.directive.end.erlang)
+                (1 meta.structure.record.erlang)
+                (2 punctuation.definition.class.record.end.erlang)))
+        (subzones
+            (include @internal-record-body))))
+
+(collection internal-function-parts
+    (zone
+        (start
+            (regex [(?=\()]))
+        (end
+            (regex [(->)]
+                (1 punctuation.separator.clause-head-body.erlang)))
+        (subzones
+            (zone
+                (start
+                    (regex [(\()]
+                        (1 punctuation.definition.parameters.begin.erlang)))
+                (end
+                    (regex [(\))]
+                        (1 punctuation.definition.parameters.end.erlang)))
+                (subzones
+                    (zone punctuation.separator.parameters.erlang
+                        (match ,))
+                    (include @everything-else)))
+            (zone punctuation.separator.guards.erlang
+                (match
+                    (regex ,|;)))
+            (include @everything-else)))
+    (zone punctuation.separator.expressions.erlang
+        (match ,))
+    (include @everything-else))
+
+(collection internal-expression-punctuation
+    (zone
+        (match
+            (regex [(->)|(;)|(,)]
+                (3 punctuation.separator.expressions.erlang)
+                (1 punctuation.separator.clause-head-body.erlang)
+                (2 punctuation.separator.clauses.erlang)))))
+
+(collection binary
+    (zone meta.structure.binary.erlang
+        (start
+            (regex [(<<)]
+                (1 punctuation.definition.binary.begin.erlang)))
+        (end
+            (regex [(>>)]
+                (1 punctuation.definition.binary.end.erlang)))
+        (subzones
+            (zone
+                (match
+                    (regex [(,)|(:)]
+                        (1 punctuation.separator.binary.erlang)
+                        (2 punctuation.separator.value-size.erlang))))
+            (include @internal-type-specifiers)
+            (include @everything-else))))
+
+(collection number
+    (zone
+        (start
+            (regex [(?=\d)]))
+        (end
+            (regex [(?!\d)]))
+        (subzones
+            (zone constant.numeric.float.erlang
+                (match
+                    (regex [\d++(\.)\d++(([eE][\+\-])?\d++)?]
+                        (3 punctuation.separator.float-exponent.erlang)
+                        (1 punctuation.separator.integer-float.erlang))))
+            (zone constant.numeric.integer.binary.erlang
+                (match
+                    (regex [2(#)[0-1]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-3.erlang
+                (match
+                    (regex [3(#)[0-2]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-4.erlang
+                (match
+                    (regex [4(#)[0-3]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-5.erlang
+                (match
+                    (regex [5(#)[0-4]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-6.erlang
+                (match
+                    (regex [6(#)[0-5]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-7.erlang
+                (match
+                    (regex [7(#)[0-6]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.octal.erlang
+                (match
+                    (regex [8(#)[0-7]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-9.erlang
+                (match
+                    (regex [9(#)[0-8]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.decimal.erlang
+                (match
+                    (regex [10(#)\d++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-11.erlang
+                (match
+                    (regex [11(#)[\daA]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-12.erlang
+                (match
+                    (regex [12(#)[\da-bA-B]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-13.erlang
+                (match
+                    (regex [13(#)[\da-cA-C]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-14.erlang
+                (match
+                    (regex [14(#)[\da-dA-D]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-15.erlang
+                (match
+                    (regex [15(#)[\da-eA-E]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.hexadecimal.erlang
+                (match
+                    (regex [16(#)\h++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-17.erlang
+                (match
+                    (regex [17(#)[\da-gA-G]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-18.erlang
+                (match
+                    (regex [18(#)[\da-hA-H]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-19.erlang
+                (match
+                    (regex [19(#)[\da-iA-I]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-20.erlang
+                (match
+                    (regex [20(#)[\da-jA-J]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-21.erlang
+                (match
+                    (regex [21(#)[\da-kA-K]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-22.erlang
+                (match
+                    (regex [22(#)[\da-lA-L]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-23.erlang
+                (match
+                    (regex [23(#)[\da-mA-M]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-24.erlang
+                (match
+                    (regex [24(#)[\da-nA-N]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-25.erlang
+                (match
+                    (regex [25(#)[\da-oA-O]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-26.erlang
+                (match
+                    (regex [26(#)[\da-pA-P]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-27.erlang
+                (match
+                    (regex [27(#)[\da-qA-Q]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-28.erlang
+                (match
+                    (regex [28(#)[\da-rA-R]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-29.erlang
+                (match
+                    (regex [29(#)[\da-sA-S]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-30.erlang
+                (match
+                    (regex [30(#)[\da-tA-T]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-31.erlang
+                (match
+                    (regex [31(#)[\da-uA-U]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-32.erlang
+                (match
+                    (regex [32(#)[\da-vA-V]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-33.erlang
+                (match
+                    (regex [33(#)[\da-wA-W]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-34.erlang
+                (match
+                    (regex [34(#)[\da-xA-X]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-35.erlang
+                (match
+                    (regex [35(#)[\da-yA-Y]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone constant.numeric.integer.base-36.erlang
+                (match
+                    (regex [36(#)[\da-zA-Z]++]
+                        (1 punctuation.separator.base-integer.erlang))))
+            (zone invalid.illegal.integer.erlang
+                (match
+                    (regex [\d++#[\da-zA-Z]++])))
+            (zone constant.numeric.integer.decimal.erlang
+                (match
+                    (regex \d++))))))
+
+(collection function
+    (zone meta.function.erlang
+        (start
+            (regex [^\s*+([a-z][a-zA-Z\d@_]*+)\s*+(?=\()]
+                (1 entity.name.function.definition.erlang)))
+        (end
+            (regex [(\.)]
+                (1 punctuation.terminator.function.erlang)))
+        (subzones
+            (zone
+                (match
+                    (regex [^\s*+([a-z][a-zA-Z\d@_]*+)\s*+(?=\()]
+                        (1 entity.name.function.erlang))))
+            (zone
+                (start
+                    (regex [(?=\()]))
+                (end
+                    (regex [(;)|(?=\.)]
+                        (1 punctuation.separator.clauses.erlang)))
+                (subzones
+                    (include @parenthesized-expression)
+                    (include @internal-function-parts)))
+            (include @everything-else))))
+
+(collection module-directive
+    (zone meta.directive.module.erlang
+        (match
+            (regex [^\s*+(-)\s*+(module)\s*+(\()\s*+([a-z][a-zA-Z\d@_]*+)\s*+(\))\s*+(\.)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.type.class.module.definition.erlang)
+                (5 punctuation.definition.parameters.end.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (6 punctuation.section.directive.end.erlang)
+                (2 keyword.control.directive.module.erlang)))))
+
+(collection list
+    (zone meta.structure.list.erlang
+        (start
+            (regex `(\[)`
+                (1 punctuation.definition.list.begin.erlang)))
+        (end
+            (regex `(\])`
+                (1 punctuation.definition.list.end.erlang)))
+        (subzones
+            (zone punctuation.separator.list.erlang
+                (match
+                    (regex \||\|\||,)))
+            (include @everything-else))))
+
+(collection directive
+    (zone meta.directive.erlang
+        (start
+            (regex [^\s*+(-)\s*+([a-z][a-zA-Z\d@_]*+)\s*+(\()]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.erlang)))
+        (end
+            (regex [(\))\s*+(\.)]
+                (1 punctuation.definition.parameters.end.erlang)
+                (2 punctuation.section.directive.end.erlang)))
+        (subzones
+            (include @everything-else)))
+    (zone meta.directive.erlang
+        (match
+            (regex [^\s*+(-)\s*+([a-z][a-zA-Z\d@_]*+)\s*+(\.)]
+                (3 punctuation.section.directive.end.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.erlang)))))
+
+(collection import-export-directive
+    (zone meta.directive.import.erlang
+        (start
+            (regex [^\s*+(-)\s*+(import)\s*+(\()\s*+([a-z][a-zA-Z\d@_]*+)\s*+(,)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.type.class.module.erlang)
+                (5 punctuation.separator.parameters.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.import.erlang)))
+        (end
+            (regex [(\))\s*+(\.)]
+                (1 punctuation.definition.parameters.end.erlang)
+                (2 punctuation.section.directive.end.erlang)))
+        (subzones
+            (include @internal-function-list)))
+    (zone meta.directive.export.erlang
+        (start
+            (regex [^\s*+(-)\s*+(export)\s*+(\()]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.export.erlang)))
+        (end
+            (regex [(\))\s*+(\.)]
+                (1 punctuation.definition.parameters.end.erlang)
+                (2 punctuation.section.directive.end.erlang)))
+        (subzones
+            (include @internal-function-list))))
+
+(collection define-directive
+    (zone meta.directive.define.erlang
+        (start
+            (regex [^\s*+(-)\s*+(define)\s*+(\()\s*+([a-zA-Z\d@_]++)\s*+(,)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.function.macro.definition.erlang)
+                (5 punctuation.separator.parameters.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (2 keyword.control.directive.define.erlang)))
+        (end
+            (regex [(\))\s*+(\.)]
+                (1 punctuation.definition.parameters.end.erlang)
+                (2 punctuation.section.directive.end.erlang)))
+        (subzones
+            (include @everything-else)))
+    (zone meta.directive.define.erlang
+        (start
+            (regex [(?=^\s*+-\s*+define\s*+\(\s*+[a-zA-Z\d@_]++\s*+\()]))
+        (end
+            (regex [(\))\s*+(\.)]
+                (1 punctuation.definition.parameters.end.erlang)
+                (2 punctuation.section.directive.end.erlang)))
+        (subzones
+            (zone
+                (start
+                    (regex [^\s*+(-)\s*+(define)\s*+(\()\s*+([a-zA-Z\d@_]++)\s*+(\()]
+                        (3 punctuation.definition.parameters.begin.erlang)
+                        (4 entity.name.function.macro.definition.erlang)
+                        (5 punctuation.definition.parameters.begin.erlang)
+                        (1 punctuation.section.directive.begin.erlang)
+                        (2 keyword.control.directive.define.erlang)))
+                (end
+                    (regex [(\))\s*(,)]
+                        (1 punctuation.definition.parameters.end.erlang)
+                        (2 punctuation.separator.parameters.erlang)))
+                (subzones
+                    (zone punctuation.separator.parameters.erlang
+                        (match ,))
+                    (include @everything-else)))
+            (zone punctuation.separator.define.erlang
+                (match
+                    (regex \|\||\||:|;|,|\.|->)))
+            (include @everything-else))))
+
+(collection atom
+    (zone constant.other.symbol.quoted.single.erlang
+        (start
+            (regex [(')]
+                (1 punctuation.definition.symbol.begin.erlang)))
+        (end
+            (regex [(')]
+                (1 punctuation.definition.symbol.end.erlang)))
+        (subzones
+            (zone constant.other.symbol.escape.erlang
+                (match
+                    (regex [(\\)([bdefnrstv\\'"]|(\^)[@-_]|[0-7]{1,3})]
+                        (3 punctuation.definition.escape.erlang)
+                        (1 punctuation.definition.escape.erlang))))
+            (zone invalid.illegal.atom.erlang
+                (match
+                    (regex \\\^?.?)))))
+    (zone constant.other.symbol.unquoted.erlang
+        (match
+            (regex [[a-z][a-zA-Z\d@_]*+]))))
+
+(collection macro-directive
+    (zone meta.directive.ifdef.erlang
+        (match
+            (regex [^\s*+(-)\s*+(ifdef)\s*+(\()\s*+([a-zA-z\d@_]++)\s*+(\))\s*+(\.)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.function.macro.erlang)
+                (5 punctuation.definition.parameters.end.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (6 punctuation.section.directive.end.erlang)
+                (2 keyword.control.directive.ifdef.erlang))))
+    (zone meta.directive.ifndef.erlang
+        (match
+            (regex [^\s*+(-)\s*+(ifndef)\s*+(\()\s*+([a-zA-z\d@_]++)\s*+(\))\s*+(\.)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.function.macro.erlang)
+                (5 punctuation.definition.parameters.end.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (6 punctuation.section.directive.end.erlang)
+                (2 keyword.control.directive.ifndef.erlang))))
+    (zone meta.directive.undef.erlang
+        (match
+            (regex [^\s*+(-)\s*+(undef)\s*+(\()\s*+([a-zA-z\d@_]++)\s*+(\))\s*+(\.)]
+                (3 punctuation.definition.parameters.begin.erlang)
+                (4 entity.name.function.macro.erlang)
+                (5 punctuation.definition.parameters.end.erlang)
+                (1 punctuation.section.directive.begin.erlang)
+                (6 punctuation.section.directive.end.erlang)
+                (2 keyword.control.directive.undef.erlang)))))
+
+(collection internal-function-list
+    (zone meta.structure.list.function.erlang
+        (start
+            (regex `(\[)`
+                (1 punctuation.definition.list.begin.erlang)))
+        (end
+            (regex `(\])`
+                (1 punctuation.definition.list.end.erlang)))
+        (subzones
+            (zone
+                (start
+                    (regex [([a-z][a-zA-Z\d@_]*+)\s*+(/)]
+                        (1 entity.name.function.erlang)
+                        (2 punctuation.separator.function-arity.erlang)))
+                (end
+                    (regex `(,)|(?=\])`
+                        (1 punctuation.separator.list.erlang)))
+                (subzones
+                    (include @everything-else)))
+            (include @everything-else))))
+
+(collection internal-type-specifiers
+    (zone
+        (start
+            (regex [(/)]
+                (1 punctuation.separator.value-type.erlang)))
+        (end
+            (regex [(?=,|:|>>)]))
+        (subzones
+            (zone
+                (match
+                    (regex [(integer|float|binary)|(signed|unsigned)|(big|little|native)|(unit)|(-)]
+                        (3 storage.modifier.endianness.erlang)
+                        (4 storage.modifier.unit.erlang)
+                        (5 punctuation.separator.type-specifiers.erlang)
+                        (1 storage.type.erlang)
+                        (2 storage.modifier.signedness.erlang)))))))
+
+(collection textual-operator
+    (zone keyword.operator.textual.erlang
+        (match
+            (list andalso band and bxor xor bor orelse or bnot not bsl bsr div rem)
+            (boundary.both))))
+
+(collection expression
+    (zone meta.expression.if.erlang
+        (start
+            (regex [\b(if)\b]
+                (1 keyword.control.if.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @internal-expression-punctuation)
+            (include @everything-else)))
+    (zone meta.expression.case.erlang
+        (start
+            (regex [\b(case)\b]
+                (1 keyword.control.case.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @internal-expression-punctuation)
+            (include @everything-else)))
+    (zone meta.expression.receive.erlang
+        (start
+            (regex [\b(receive)\b]
+                (1 keyword.control.receive.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @internal-expression-punctuation)
+            (include @everything-else)))
+    (zone
+        (match
+            (regex [\b(fun)\s*+(([a-z][a-zA-Z\d@_]*+)\s*+(:)\s*+)?([a-z][a-zA-Z\d@_]*+)\s*(/)]
+                (3 entity.name.type.class.module.erlang)
+                (4 punctuation.separator.module-function.erlang)
+                (5 entity.name.function.erlang)
+                (1 keyword.control.fun.erlang)
+                (6 punctuation.separator.function-arity.erlang))))
+    (zone meta.expression.fun.erlang
+        (start
+            (regex [\b(fun)\b]
+                (1 keyword.control.fun.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (zone
+                (start
+                    (regex [(?=\()]))
+                (end
+                    (regex [(;)|(?=\bend\b)]
+                        (1 punctuation.separator.clauses.erlang)))
+                (subzones
+                    (include @internal-function-parts)))
+            (include @everything-else)))
+    (zone meta.expression.try.erlang
+        (start
+            (regex [\b(try)\b]
+                (1 keyword.control.try.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @internal-expression-punctuation)
+            (include @everything-else)))
+    (zone meta.expression.begin.erlang
+        (start
+            (regex [\b(begin)\b]
+                (1 keyword.control.begin.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @internal-expression-punctuation)
+            (include @everything-else)))
+    (zone meta.expression.query.erlang
+        (start
+            (regex [\b(query)\b]
+                (1 keyword.control.query.erlang)))
+        (end
+            (regex [\b(end)\b]
+                (1 keyword.control.end.erlang)))
+        (subzones
+            (include @everything-else))))
+
+(collection comment
+    (zone comment.line.erlang
+        (start
+            (regex [(%)]
+                (1 punctuation.definition.comment.erlang)))
+        (end
+            (regex $\n?))))
+
+(collection character
+    (zone constant.character.erlang
+        (match
+            (regex [(\$)((\\)([bdefnrstv\\'"]|(\^)[@-_]|[0-7]{1,3}))]
+                (3 punctuation.definition.escape.erlang)
+                (5 punctuation.definition.escape.erlang)
+                (1 punctuation.definition.character.erlang)
+                (2 constant.character.escape.erlang))))
+    (zone invalid.illegal.character.erlang
+        (match
+            (regex \$\\\^?.?)))
+    (zone constant.character.erlang
+        (match
+            (regex [(\$)\S]
+                (1 punctuation.definition.character.erlang))))
+    (zone invalid.illegal.character.erlang
+        (match
+            (regex \$.?))))
+
+(collection string
+    (zone string.quoted.double.erlang
+        (start
+            (regex [(")]
+                (1 punctuation.definition.string.begin.erlang)))
+        (end
+            (regex [(")]
+                (1 punctuation.definition.string.end.erlang)))
+        (subzones
+            (zone constant.character.escape.erlang
+                (match
+                    (regex [(\\)([bdefnrstv\\'"]|(\^)[@-_]|[0-7]{1,3})]
+                        (3 punctuation.definition.escape.erlang)
+                        (1 punctuation.definition.escape.erlang))))
+            (zone invalid.illegal.string.erlang
+                (match
+                    (regex \\\^?.?)))
+            (zone constant.other.placeholder.erlang
+                (match
+                    (regex [(~)((\-)?\d++|(\*))?((\.)(\d++|(\*)))?((\.)((\*)|.))?[~cfegswpWPBX#bx\+ni]]
+                        (3 punctuation.separator.placeholder-parts.erlang)
+                        (8 punctuation.separator.placeholder-parts.erlang)
+                        (4 punctuation.separator.placeholder-parts.erlang)
+                        (1 punctuation.definition.placeholder.erlang)
+                        (12 punctuation.separator.placeholder-parts.erlang)
+                        (6 punctuation.separator.placeholder-parts.erlang)
+                        (10 punctuation.separator.placeholder-parts.erlang))))
+            (zone constant.other.placeholder.erlang
+                (match
+                    (regex [(~)(\*)?(\d++)?[~du\-#fsacl]]
+                        (1 punctuation.definition.placeholder.erlang)
+                        (2 punctuation.separator.placeholder-parts.erlang))))
+            (zone invalid.illegal.string.erlang
+                (match
+                    (regex ~.?))))))
+
+(collection variable
+    (zone
+        (match
+            (regex [(_[a-zA-Z\d@_]++|[A-Z][a-zA-Z\d@_]*+)|(_)]
+                (1 variable.other.erlang)
+                (2 variable.language.omitted.erlang)))))

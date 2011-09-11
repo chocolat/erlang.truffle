@@ -1,0 +1,11 @@
+(root text.html.erlang.yaws
+    (zone source.erlang.embedded.html
+        (start
+            (regex <erl>
+                (0 punctuation.section.embedded.erlang)))
+        (end
+            (regex </erl>
+                (0 punctuation.section.embedded.erlang)))
+        (subzones
+            (include source.erlang)))
+    (include text.html.basic))

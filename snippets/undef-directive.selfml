@@ -1,0 +1,8 @@
+(name [Undef Directive])
+
+(trigger
+    (tab undef))
+
+(only-in source.erlang)
+
+(snippet [-undef (%{1="macro"}).])

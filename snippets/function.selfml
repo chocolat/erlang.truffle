@@ -1,0 +1,9 @@
+(name Function)
+
+(trigger
+    (key [[ctrl][shift]F]))
+
+(only-in source.erlang)
+
+(snippet [%{1="function"} (%{2="param"})%{3=" when %{4="guard"}"} ->
+	%{5="body"}])

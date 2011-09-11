@@ -1,0 +1,8 @@
+(name [Define Directive])
+
+(trigger
+    (tab def))
+
+(only-in source.erlang)
+
+(snippet [-define (%{1="macro"}%{2=" (%{3="param"})"}, %{4="body"}).])

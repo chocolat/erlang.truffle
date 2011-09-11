@@ -1,0 +1,8 @@
+(name [Export Directive])
+
+(trigger
+    (tab exp))
+
+(only-in source.erlang)
+
+(snippet [-export ([%{1="function"}/%{2="arity"}]).])

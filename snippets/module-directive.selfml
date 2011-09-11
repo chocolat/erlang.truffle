@@ -1,0 +1,8 @@
+(name [Module Directive])
+
+(trigger
+    (tab mod))
+
+(only-in source.erlang)
+
+(snippet [-module (%{1="%{TM_FILEPATH/^.*\/(.*)\.erl$/$1/g}"}).])

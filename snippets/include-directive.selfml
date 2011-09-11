@@ -1,0 +1,8 @@
+(name [Include Directive])
+
+(trigger
+    (tab inc))
+
+(only-in source.erlang)
+
+(snippet [-include ("%{1="file"}").])

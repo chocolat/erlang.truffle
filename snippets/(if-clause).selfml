@@ -1,0 +1,8 @@
+(name [(If Clause)])
+
+(trigger)
+
+(only-in source.erlang)
+
+(snippet [%{1="guard"} ->
+	%{2="body"}])

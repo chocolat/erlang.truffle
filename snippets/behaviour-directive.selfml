@@ -1,0 +1,8 @@
+(name [Behaviour Directive])
+
+(trigger
+    (tab beh))
+
+(only-in source.erlang)
+
+(snippet [-behaviour (%{1="behaviour"}).])

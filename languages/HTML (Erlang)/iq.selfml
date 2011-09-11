@@ -1,0 +1,43 @@
+(detector
+    (extension yaws))
+
+(folding
+    (start [(?x)
+		(<(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|form|dl|erl)\b.*?>
+		|<!--(?!.*-->)
+		|\{\s*($|\?>\s*$|//|/\*(.*\*/\s*$|(?!.*?\*/)))
+		)])
+    (stop [(?x)
+		(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|form|dl|erl)>
+		|^\s*-->
+		|(^|\s)\}
+		)]))
+
+(in source.erlang
+    (shell-variables
+        (TM_COMMENT_START [% ])
+        (TM_COMMENT_MODE line))
+    (comment.line [% ]))
+
+(in [source.erlang entity.name.function.definition]
+    (symbol-list
+        (transformation s,$,/,)))
+
+(in source.erlang
+    (indentation.decrease [^\s*\b(end)\b])
+    (indentation.increase [^[^%]*(\b(if|case|receive|after|fun|try|catch|begin|query)\b(?!.*\b(end)\b.*))|(->(\s*%.*)?$)]))
+
+(in [source.erlang entity.name.function.macro.definition]
+    (symbol-list
+        (transformation s/^/?/)))
+
+(in [source.erlang entity.name.type.class.module.definition.erlang]
+    (symbol-list
+        (transformation s/^/-/)))
+
+(in [source.erlang entity.name.type.class.record.definition]
+    (symbol-list
+        (transformation [s/^/#/])))
+
+(in [source.erlang entity.name.function, source.erlang entity.name.type.class]
+    (symbol-list))
